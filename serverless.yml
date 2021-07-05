@@ -1,0 +1,206 @@
+service: my-api
+
+variablesResolutionMode: 20210326
+frameworkVersion: '2'
+configValidationMode: warn
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-domain-manager
+  - serverless-pseudo-parameters
+  - serverless-prune-plugin
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stackName: ${self:service}
+  stage: ${env:STAGE}
+  region: ${env:AWS_REGION, 'us-east-1'}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+            - s3:*
+            - kms:Describe*
+            - kms:Encrypt*
+            - kms:Decrypt*
+            - kms:GenerateDataKey
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - ssm:GetParametersByPath
+          Resource:
+            - arn:aws:ssm:#{AWS::Region}:#{AWS::AccountId}:parameter${self:provider.environment.SSM_APP_PATH}
+  logRetentionInDays: 30
+  environment: ${self:custom.environment.${self:provider.stage}}
+
+custom:
+  environment:
+    prod:
+      STAGE: ${self:provider.stage}
+      SSM_APP_PATH: /app/${self:service}
+      AWS_DYNAMODB_TABLE: ${self:service}
+    local:
+      STAGE: ${self:provider.stage}
+      SSM_APP_PATH: /app/${self:service}
+      AWS_DYNAMODB_ENDPOINT: ''
+      AWS_DYNAMODB_TABLE:
+        Fn::Ref: Table
+  customDomain:
+    domainName: ${ssm:/deploy/${self:service}/DOMAIN_NAME}
+    createRoute53Record: true
+    certificateName: ${ssm:/deploy/${self:service}/ACM_CERTIFICATE}
+  serverless-offline:
+    host: 0.0.0.0
+    httpPort: 9777
+    noPrependStageInUrl: true
+  webpack:
+    webpackConfig: ./webpack.config.js
+    packager: yarn
+    includeModules: true
+  prune:
+    automatic: true
+    includeLayers: true
+    number: 5
+
+functions:
+  api:
+    handler: src/index.api
+    events:
+      - http:
+          path: /{any+}
+          method: '*'
+          cors:
+            origin: ${ssm:/deploy/${self:service}/CORS_ORIGIN, '*'}
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+resources:
+  Resources:
+    Table:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: SK
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+        Tags:
+          - Key: Name
+            Value: ${self:service}
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        SSESpecification:
+          SSEEnabled: true
+          SSEType: KMS
+        # PointInTimeRecoverySpecification:
+        #   PointInTimeRecoveryEnabled: true
+
+    WriteCapacityScalableTarget:
+      Type: AWS::ApplicationAutoScaling::ScalableTarget
+      Properties:
+        MaxCapacity: 100
+        MinCapacity: 1
+        ResourceId:
+          Fn::Join:
+            - /
+            - - table
+              - !Ref Table
+        RoleARN:
+          Fn::GetAtt:
+            - ScalingRole
+            - Arn
+        ScalableDimension: dynamodb:table:WriteCapacityUnits
+        ServiceNamespace: dynamodb
+
+    ReadCapacityScalableTarget:
+      Type: AWS::ApplicationAutoScaling::ScalableTarget
+      Properties:
+        MaxCapacity: 100
+        MinCapacity: 1
+        ResourceId:
+          Fn::Join:
+            - /
+            - - table
+              - !Ref Table
+        RoleARN:
+          Fn::GetAtt:
+            - ScalingRole
+            - Arn
+        ScalableDimension: dynamodb:table:ReadCapacityUnits
+        ServiceNamespace: dynamodb
+
+    ScalingRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - application-autoscaling.amazonaws.com
+              Action:
+                - sts:AssumeRole
+        Path: '/'
+        Policies:
+          -
+            PolicyName:
+              Fn::Join:
+                - '-'
+                - !Ref Table
+                - scaling-role
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                -
+                  Effect: Allow
+                  Action:
+                    - dynamodb:DescribeTable
+                    - dynamodb:UpdateTable
+                    - cloudwatch:PutMetricAlarm
+                    - cloudwatch:DescribeAlarms
+                    - cloudwatch:GetMetricStatistics
+                    - cloudwatch:SetAlarmState
+                    - cloudwatch:DeleteAlarms
+                  Resource: '*'
+
+    WriteScalingPolicy:
+      Type: AWS::ApplicationAutoScaling::ScalingPolicy
+      Properties:
+        PolicyName: WriteAutoScalingPolicy
+        PolicyType: TargetTrackingScaling
+        ScalingTargetId: !Ref WriteCapacityScalableTarget
+        TargetTrackingScalingPolicyConfiguration:
+          TargetValue: 30.0
+          ScaleInCooldown: 60
+          ScaleOutCooldown: 60
+          PredefinedMetricSpecification:
+            PredefinedMetricType: DynamoDBWriteCapacityUtilization
+
+    ReadScalingPolicy:
+      Type: AWS::ApplicationAutoScaling::ScalingPolicy
+      Properties:
+        PolicyName: ReadutoScalingPolicy
+        PolicyType: TargetTrackingScaling
+        ScalingTargetId: !Ref ReadCapacityScalableTarget
+        TargetTrackingScalingPolicyConfiguration:
+          TargetValue: 30.0
+          ScaleInCooldown: 60
+          ScaleOutCooldown: 60
+          PredefinedMetricSpecification:
+            PredefinedMetricType: DynamoDBReadCapacityUtilization
