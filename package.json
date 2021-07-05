@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
+    "deploy": "yarn && STAGE=prod serverless create_domain && STAGE=prod serverless deploy --force",
     "start": "yarn && STAGE=local serverless offline start"
   },
   "author": "Grady T Rogers",
