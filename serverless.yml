@@ -46,12 +46,14 @@ custom:
       STAGE: ${self:provider.stage}
       SSM_APP_PATH: /app/${self:service}
       AWS_DYNAMODB_TABLE: ${self:service}
+      LOG_LEVEL: ${env:LOG_LEVEL, 'info'}
     local:
       STAGE: ${self:provider.stage}
       SSM_APP_PATH: /app/${self:service}
       AWS_DYNAMODB_ENDPOINT: ''
       AWS_DYNAMODB_TABLE:
         Fn::Ref: Table
+      LOG_LEVEL: debug
   customDomain:
     domainName: ${ssm:/deploy/${self:service}/DOMAIN_NAME}
     createRoute53Record: true

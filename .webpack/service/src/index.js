@@ -2,9 +2,28 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/router/index.js":
+/***/ "./src/controllers/userController.js":
+/*!*******************************************!*\
+  !*** ./src/controllers/userController.js ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "getUsers": () => (/* binding */ getUsers)
+/* harmony export */ });
+/* harmony import */ var source_map_support_register__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! source-map-support/register */ "source-map-support/register");
+/* harmony import */ var source_map_support_register__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(source_map_support_register__WEBPACK_IMPORTED_MODULE_0__);
+
+async function getUsers() {
+  return [];
+}
+
+/***/ }),
+
+/***/ "./src/logger/index.js":
 /*!*****************************!*\
-  !*** ./src/router/index.js ***!
+  !*** ./src/logger/index.js ***!
   \*****************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -14,15 +33,96 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var source_map_support_register__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! source-map-support/register */ "source-map-support/register");
 /* harmony import */ var source_map_support_register__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(source_map_support_register__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! express */ "express");
-/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_1__);
 
-
-const router = new express__WEBPACK_IMPORTED_MODULE_1__.Router();
-router.get('/status', (req, res) => {
-  res.sendStatus(204);
+const {
+  LOG_LEVEL = 'info'
+} = process.env;
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  debug: msg => {
+    if (LOG_LEVEL.toLowerCase() === 'debug') {
+      print(msg, 'DEBUG');
+    }
+  },
+  info: msg => print(msg, 'INFO'),
+  warn: msg => print(msg, 'WARN'),
+  error: msg => print(msg, 'ERROR', true)
 });
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (router);
+
+function print(msg, level, noParse = false) {
+  const log = typeof msg === 'object' && !noParse ? JSON.parse(JSON.stringify(msg, undefined, 4)) : msg;
+  console.log(`${level}: `);
+  console.log(log);
+}
+
+/***/ }),
+
+/***/ "./src/router/index.js":
+/*!*****************************!*\
+  !*** ./src/router/index.js ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ router)
+/* harmony export */ });
+/* harmony import */ var source_map_support_register__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! source-map-support/register */ "source-map-support/register");
+/* harmony import */ var source_map_support_register__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(source_map_support_register__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../logger */ "./src/logger/index.js");
+/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./routes */ "./src/router/routes.js");
+
+
+
+function router(req, res) {
+  const {
+    url,
+    method
+  } = req;
+  _logger__WEBPACK_IMPORTED_MODULE_1__.default.debug({
+    method,
+    url
+  });
+
+  if (method === 'HEAD') {
+    return res.sendStatus(204);
+  }
+
+  const route = _routes__WEBPACK_IMPORTED_MODULE_2__.default.find(route => route.url === url && route.method === method);
+
+  if (route) {
+    return route.handler(req).then(resp => res.send(resp)).catch(e => {
+      _logger__WEBPACK_IMPORTED_MODULE_1__.default.error(e);
+      return res.sendStatus(500);
+    });
+  }
+
+  return res.sendStatus(404);
+}
+;
+
+/***/ }),
+
+/***/ "./src/router/routes.js":
+/*!******************************!*\
+  !*** ./src/router/routes.js ***!
+  \******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var source_map_support_register__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! source-map-support/register */ "source-map-support/register");
+/* harmony import */ var source_map_support_register__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(source_map_support_register__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _controllers_userController__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../controllers/userController */ "./src/controllers/userController.js");
+
+
+const routes = [{
+  url: '/users',
+  method: 'GET',
+  handler: _controllers_userController__WEBPACK_IMPORTED_MODULE_1__.getUsers
+}];
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (routes);
 
 /***/ }),
 
@@ -163,7 +263,7 @@ app.use((0,body_parser__WEBPACK_IMPORTED_MODULE_3__.json)());
 app.use((0,body_parser__WEBPACK_IMPORTED_MODULE_3__.urlencoded)({
   extended: false
 }));
-app.use('/', _router__WEBPACK_IMPORTED_MODULE_4__.default);
+app.use(_router__WEBPACK_IMPORTED_MODULE_4__.default);
 const api = serverless_http__WEBPACK_IMPORTED_MODULE_1___default()(app);
 })();
 

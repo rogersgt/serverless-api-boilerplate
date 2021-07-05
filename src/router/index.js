@@ -1,9 +1,29 @@
-import { Router } from 'express';
+/* TO DO: Get Express Router to work here */
 
-const router = new Router();
+import logger from '../logger';
+import routes from './routes';
 
-router.get('/status', (req, res) => {
-  res.sendStatus(204);
-});
+export default function router(req, res) {
+  const {
+    url,
+    method,
+  } = req;
+  logger.debug({ method, url });
 
-export default router;
+  if (method === 'HEAD') {
+    return res.sendStatus(204);
+  }
+
+  const route = routes.find((route) => route.url === url && route.method === method);
+  if (route) {
+    return route.handler(req)
+      .then((resp) => res.send(resp))
+      .catch((e) => {
+        logger.error(e);
+        return res.sendStatus(500);
+      });
+  }
+
+  return res.sendStatus(404);
+};
+

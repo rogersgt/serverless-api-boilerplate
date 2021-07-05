@@ -10,8 +10,6 @@ const app = express();
 
 app.use(json());
 app.use(urlencoded({ extended: false }));
-
-app.use('/', router);
+app.use(router);
 
 export const api = serverless(app);
-
