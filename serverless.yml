@@ -45,14 +45,14 @@ custom:
     prod:
       STAGE: ${self:provider.stage}
       SSM_APP_PATH: /app/${self:service}
-      AWS_DYNAMODB_TABLE: ${self:service}
       LOG_LEVEL: ${env:LOG_LEVEL, 'info'}
+      AWS_DYNAMODB_TABLE:
+        Fn::Ref: Table
     local:
       STAGE: ${self:provider.stage}
       SSM_APP_PATH: /app/${self:service}
-      AWS_DYNAMODB_ENDPOINT: ''
-      AWS_DYNAMODB_TABLE:
-        Fn::Ref: Table
+      AWS_DYNAMODB_ENDPOINT: http://localhost:4566
+      AWS_DYNAMODB_TABLE: ${self:service}
       LOG_LEVEL: debug
   customDomain:
     domainName: ${ssm:/deploy/${self:service}/DOMAIN_NAME}

@@ -6,6 +6,11 @@ const routes = [
     method: 'GET',
     handler: userCtrl.getUsers,
   },
+  {
+    url: '/users',
+    method: 'POST',
+    handler: userCtrl.createNewUser,
+  }
 ];
 
 export default routes;

@@ -1,32 +1,32 @@
 {
   "name": "serverless-api-boilerplate",
   "version": "1.0.0",
-  "description": "",
+  "description": "Full serverless, dynamoose, express boilerplate",
   "main": "src/index.js",
   "scripts": {
     "deploy": "yarn && STAGE=prod serverless create_domain && STAGE=prod serverless deploy --force",
-    "start": "yarn && STAGE=local serverless offline start"
+    "start": "yarn && docker-compose up -d && STAGE=local serverless offline start"
   },
   "author": "Grady T Rogers",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.14.6",
-    "@babel/preset-env": "^7.14.7",
-    "babel-loader": "^8.2.2",
-    "babel-plugin-source-map-support": "^2.1.3",
-    "serverless": "^2.50.0",
-    "serverless-domain-manager": "^5.1.0",
-    "serverless-offline": "^7.0.0",
-    "serverless-prune-plugin": "^1.5.0",
-    "serverless-webpack": "^5.5.1",
-    "webpack": "^5.42.1",
-    "webpack-node-externals": "^3.0.0"
+    "@babel/core": "7.14.6",
+    "@babel/preset-env": "7.14.7",
+    "babel-loader": "8.2.2",
+    "babel-plugin-source-map-support": "2.1.3",
+    "serverless": "2.50.0",
+    "serverless-domain-manager": "5.1.0",
+    "serverless-offline": "7.0.0",
+    "serverless-prune-plugin": "1.5.0",
+    "serverless-webpack": "5.5.1",
+    "webpack": "5.42.1",
+    "webpack-node-externals": "3.0.0"
   },
   "dependencies": {
-    "body-parser": "^1.19.0",
-    "dynamoose": "^2.7.3",
-    "express": "^4.17.1",
-    "serverless-http": "^2.7.0",
-    "serverless-pseudo-parameters": "^2.5.0"
+    "body-parser": "1.19.0",
+    "dynamoose": "2.7.3",
+    "express": "4.17.1",
+    "serverless-http": "2.7.0",
+    "serverless-pseudo-parameters": "2.5.0"
   }
 }

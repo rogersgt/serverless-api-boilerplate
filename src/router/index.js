@@ -16,7 +16,7 @@ export default function router(req, res) {
 
   const route = routes.find((route) => route.url === url && route.method === method);
   if (route) {
-    return route.handler(req)
+    return route.handler(req.body)
       .then((resp) => res.send(resp))
       .catch((e) => {
         logger.error(e);
