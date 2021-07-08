@@ -10,7 +10,6 @@ Environment variables consumed by the application code prefixed by `/app/<servic
 Configuration options used by serverless to deploy the application in AWS, prefixed by `/deploy/<service-name>`
 - `DOMAIN_NAME`
 - `ACM_CERTIFICATE`
-- `CORS_ORIGIN` (defaults to `*`)
 
 ## environment variables
 ### all environments
