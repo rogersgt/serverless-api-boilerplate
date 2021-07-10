@@ -7,7 +7,6 @@ configValidationMode: warn
 plugins:
   - serverless-webpack
   - serverless-offline
-  - serverless-domain-manager
   - serverless-pseudo-parameters
   - serverless-prune-plugin
 
@@ -54,10 +53,6 @@ custom:
       AWS_DYNAMODB_ENDPOINT: http://localhost:4566
       AWS_DYNAMODB_TABLE: ${self:service}
       LOG_LEVEL: debug
-  customDomain:
-    domainName: ${ssm:/deploy/${self:service}/DOMAIN_NAME}
-    createRoute53Record: true
-    certificateName: ${ssm:/deploy/${self:service}/ACM_CERTIFICATE}
   serverless-offline:
     host: 0.0.0.0
     httpPort: 9777
@@ -194,3 +189,19 @@ resources:
           ScaleOutCooldown: 60
           PredefinedMetricSpecification:
             PredefinedMetricType: DynamoDBReadCapacityUtilization
+
+    CustomDomain:
+      Type: AWS::ApiGatewayV2::DomainName
+      Properties: 
+        DomainName: ${ssm:/deploy/${self:service}/DOMAIN_NAME}
+        DomainNameConfigurations: 
+          - CertificateArn: ${ssm:/deploy/${self:service}/ACM_CERTIFICATE}
+            SecurityPolicy: TLS_1_2
+            EndpointType: REGIONAL
+
+    ApiMapping:
+      Type: AWS::ApiGatewayV2::ApiMapping
+      Properties: 
+        ApiId: !Ref HttpApi
+        DomainName: !Ref CustomDomain
+        Stage: !Ref HttpApiStage
