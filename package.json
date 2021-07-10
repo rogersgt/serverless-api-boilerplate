@@ -4,7 +4,7 @@
   "description": "Full serverless, dynamoose, express boilerplate",
   "main": "src/index.js",
   "scripts": {
-    "deploy": "yarn && STAGE=prod serverless create_domain && STAGE=prod serverless deploy --force",
+    "deploy": "yarn && STAGE=prod serverless deploy --force",
     "start": "yarn && docker-compose up -d && STAGE=local serverless offline start"
   },
   "author": "Grady T Rogers",
