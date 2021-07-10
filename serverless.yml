@@ -205,3 +205,20 @@ resources:
         ApiId: !Ref HttpApi
         DomainName: !Ref CustomDomain
         Stage: !Ref HttpApiStage
+
+    DnsRecord:
+      Type: AWS::Route53::RecordSet
+      Properties:
+        AliasTarget:
+          DNSName:
+            Fn::GetAtt:
+              - CustomDomain
+              - RegionalDomainName
+          HostedZoneId:
+            Fn::GetAtt:
+              - CustomDomain
+              - RegionalHostedZoneId
+          EvaluateTargetHealth: false
+        HostedZoneName: ${ssm:/deploy/${self:service}/HOSTED_ZONE}
+        Name: !Sub '${CustomDomain}.'
+        Type: A

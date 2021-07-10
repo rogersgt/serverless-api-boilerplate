@@ -8,8 +8,9 @@ Environment variables consumed by the application code prefixed by `/app/<servic
 
 ### deployment
 Configuration options used by serverless to deploy the application in AWS, prefixed by `/deploy/<service-name>`
-- `DOMAIN_NAME`: Custom domain name to create
+- `DOMAIN_NAME`: Custom domain name to create (`api.my-domain.com` etc)
 - `ACM_CERTIFICATE`: ACM Certificate Arn for the custom domain name
+- `HOSTED_ZONE`: Route53 Hosted Zone Name (with period at the end, i.e. `my-domain.`)
 
 ## environment variables
 ### all environments
