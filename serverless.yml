@@ -46,7 +46,7 @@ custom:
       SSM_APP_PATH: /app/${self:service}
       LOG_LEVEL: ${env:LOG_LEVEL, 'info'}
       AWS_DYNAMODB_TABLE:
-        Fn::Ref: Table
+        Ref: Table
     local:
       STAGE: ${self:provider.stage}
       SSM_APP_PATH: /app/${self:service}
