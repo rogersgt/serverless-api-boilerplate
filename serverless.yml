@@ -147,8 +147,8 @@ resources:
             PolicyName:
               Fn::Join:
                 - '-'
-                - !Ref Table
-                - scaling-role
+                - - !Ref Table
+                  - scaling-role
             PolicyDocument:
               Version: '2012-10-17'
               Statement:
