@@ -40,19 +40,19 @@ provider:
   environment: ${self:custom.environment.${self:provider.stage}}
 
 custom:
+  defaultEnvVars: &defaultEnvVars
+    STAGE: ${self:provider.stage}
+    SSM_APP_PATH: /app/${self:service}
+    LOG_LEVEL: ${env:LOG_LEVEL, 'info'}
   environment:
     prod:
-      STAGE: ${self:provider.stage}
-      SSM_APP_PATH: /app/${self:service}
-      LOG_LEVEL: ${env:LOG_LEVEL, 'info'}
+      <<: *defaultEnvVars
       AWS_DYNAMODB_TABLE:
         Ref: Table
     local:
-      STAGE: ${self:provider.stage}
-      SSM_APP_PATH: /app/${self:service}
+      <<: *defaultEnvVars
       AWS_DYNAMODB_ENDPOINT: http://localhost:4566
       AWS_DYNAMODB_TABLE: ${self:service}
-      LOG_LEVEL: debug
   serverless-offline:
     host: 0.0.0.0
     httpPort: 9777
