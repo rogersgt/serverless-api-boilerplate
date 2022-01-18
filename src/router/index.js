@@ -1,29 +1,42 @@
-/* TO DO: Get Express Router to work here */
-
+import { Router } from 'express';
 import logger from '../logger';
-import routes from './routes';
+import apiRouter from './apiRouter';
+import cfRouter from './cloudformationRouter';
+import viewsRouter from './viewsRouter';
+import ssmRouter from './ssmRouter';
+import infoRouter from './infoRouter';
+import authRouter from './authRouter';
 
-export default function router(req, res) {
-  const {
+const {
+  COGNITO_LOGIN_URL,
+  COGNITO_CLIENT_ID,
+  DOMAIN_NAME,
+} = process.env;
+
+const router = Router();
+
+router.use((req, res, next) => {
+  const { url, body, method } = req;
+  logger.debug({
     url,
+    body,
     method,
-  } = req;
-  logger.debug({ method, url });
+  });
+  next();
+});
 
-  if (method === 'HEAD') {
-    return res.sendStatus(204);
-  }
+router.get('/login', (req, res) => {
+  const cognitoLoginUri = `${COGNITO_LOGIN_URL}/login?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=${DOMAIN_NAME}`;
+  return res.status(301).redirect(cognitoLoginUri);
+});
 
-  const route = routes.find((route) => route.url === url && route.method === method);
-  if (route) {
-    return route.handler(req.body)
-      .then((resp) => res.send(resp))
-      .catch((e) => {
-        logger.error(e);
-        return res.sendStatus(500);
-      });
-  }
+router.use('/auth', authRouter);
 
-  return res.sendStatus(404);
-};
+router.use('/api/cloudformation', cfRouter);
+router.use('/api/ssm', ssmRouter);
+router.use('/api/info', infoRouter);
+router.use('/api', apiRouter);
 
+router.use('/', viewsRouter);
+
+export default router;
