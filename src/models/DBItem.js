@@ -10,7 +10,7 @@ if (AWS_DYNAMODB_ENDPOINT) {
   dynamoose.aws.ddb.local(AWS_DYNAMODB_ENDPOINT);
 }
 
-export default dynamoose.model(AWS_DYNAMODB_TABLE, {
+const schema = new dynamoose.Schema({
   PK: {
     type: String,
     hashKey: true,
@@ -19,7 +19,11 @@ export default dynamoose.model(AWS_DYNAMODB_TABLE, {
     type: String,
     rangeKey: true,
   },
-  email: String,
 }, {
-  create: STAGE.toLowerCase() === 'local',
+  saveUnknown: ['*.*', '*.**', '*.***'],
+  timestamps: true,
+});
+
+export default dynamoose.model(AWS_DYNAMODB_TABLE, schema, {
+  create: STAGE.toLowerCase() === 'dev',
 });

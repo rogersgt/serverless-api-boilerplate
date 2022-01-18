@@ -52,6 +52,7 @@ custom:
     securityPolicy: tls_1_2
     autoDomain: true
   defaultEnvVars: &defaultEnvVars
+    APP_NAME: ${env:APP_NAME}
     STAGE: ${self:provider.stage}
     SSM_APP_PATH: /app/${stage}/${self:service}
     LOG_LEVEL: ${env:LOG_LEVEL, 'info'}
@@ -60,7 +61,7 @@ custom:
       <<: *defaultEnvVars
       AWS_DYNAMODB_TABLE:
         Ref: Table
-    local:
+    dev:
       <<: *defaultEnvVars
       AWS_DYNAMODB_ENDPOINT: http://localhost:4566
       AWS_DYNAMODB_TABLE: ${self:service}

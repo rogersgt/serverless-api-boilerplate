@@ -1,29 +1,19 @@
-/* TO DO: Get Express Router to work here */
-
+import { Router } from 'express';
 import logger from '../logger';
-import routes from './routes';
+import apiRouter from './apiRouter';
 
-export default function router(req, res) {
-  const {
+const router = Router();
+
+router.use((req, res, next) => {
+  const { url, body, method } = req;
+  logger.debug({
     url,
+    body,
     method,
-  } = req;
-  logger.debug({ method, url });
+  });
+  next();
+});
 
-  if (method === 'HEAD') {
-    return res.sendStatus(204);
-  }
+router.use('/', apiRouter);
 
-  const route = routes.find((route) => route.url === url && route.method === method);
-  if (route) {
-    return route.handler(req.body)
-      .then((resp) => res.send(resp))
-      .catch((e) => {
-        logger.error(e);
-        return res.sendStatus(500);
-      });
-  }
-
-  return res.sendStatus(404);
-};
-
+export default router;
