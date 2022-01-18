@@ -26,6 +26,7 @@
     "dynamoose": "2.7.3",
     "express": "4.17.1",
     "serverless-http": "2.7.0",
-    "serverless-pseudo-parameters": "2.5.0"
+    "serverless-pseudo-parameters": "2.5.0",
+    "source-map-support": "0.5.21"
   }
 }
