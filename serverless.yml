@@ -54,7 +54,7 @@ custom:
   defaultEnvVars: &defaultEnvVars
     APP_NAME: ${env:APP_NAME}
     STAGE: ${self:provider.stage}
-    SSM_APP_PATH: /app/${stage}/${self:service}
+    SSM_APP_PATH: /app/${self:provider.stage}/${self:service}
     LOG_LEVEL: ${env:LOG_LEVEL, 'info'}
   environment:
     prod:
