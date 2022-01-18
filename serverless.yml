@@ -1,14 +1,14 @@
-service: my-api
-
-variablesResolutionMode: 20210326
+service: ${env:APP_NAME}
 frameworkVersion: '2'
+variablesResolutionMode: 20210326
 configValidationMode: warn
+useDotenv: true
 
 plugins:
   - serverless-webpack
   - serverless-offline
-  - serverless-pseudo-parameters
   - serverless-prune-plugin
+  - serverless-domain-manager
 
 package:
   individually: true
@@ -35,14 +35,24 @@ provider:
           Action:
             - ssm:GetParametersByPath
           Resource:
-            - arn:aws:ssm:#{AWS::Region}:#{AWS::AccountId}:parameter${self:provider.environment.SSM_APP_PATH}
+            - arn:aws:ssm:${self:provider.region}:${aws:accountId}:parameter${self:provider.environment.SSM_APP_PATH}
   logRetentionInDays: 30
   environment: ${self:custom.environment.${self:provider.stage}}
 
 custom:
+  customDomain:
+    http:
+      domainName: ${env:ROUTE53_RECORD_NAME, ''}
+      stage: ${self:provider.stage}
+      basePath: ''
+      certificateArn: ${env:ACM_CERTIFICATE_ARN, ''}
+      createRoute53Record: true
+      endpointType: 'regional'
+      securityPolicy: tls_1_2
+      autoDomain: true
   defaultEnvVars: &defaultEnvVars
     STAGE: ${self:provider.stage}
-    SSM_APP_PATH: /app/${self:service}
+    SSM_APP_PATH: /app/${stage}/${self:service}
     LOG_LEVEL: ${env:LOG_LEVEL, 'info'}
   environment:
     prod:
@@ -173,7 +183,8 @@ resources:
       Properties:
         PolicyName: WriteAutoScalingPolicy
         PolicyType: TargetTrackingScaling
-        ScalingTargetId: !Ref WriteCapacityScalableTarget
+        ScalingTargetId:
+          Ref: WriteCapacityScalableTarget
         TargetTrackingScalingPolicyConfiguration:
           TargetValue: 30.0
           ScaleInCooldown: 60
@@ -186,43 +197,11 @@ resources:
       Properties:
         PolicyName: ReadutoScalingPolicy
         PolicyType: TargetTrackingScaling
-        ScalingTargetId: !Ref ReadCapacityScalableTarget
+        ScalingTargetId:
+          Ref: ReadCapacityScalableTarget
         TargetTrackingScalingPolicyConfiguration:
           TargetValue: 30.0
           ScaleInCooldown: 60
           ScaleOutCooldown: 60
           PredefinedMetricSpecification:
             PredefinedMetricType: DynamoDBReadCapacityUtilization
-
-    CustomDomain:
-      Type: AWS::ApiGatewayV2::DomainName
-      Properties: 
-        DomainName: ${ssm:/deploy/${self:service}/DOMAIN_NAME}
-        DomainNameConfigurations: 
-          - CertificateArn: ${ssm:/deploy/${self:service}/ACM_CERTIFICATE}
-            SecurityPolicy: TLS_1_2
-            EndpointType: REGIONAL
-
-    ApiMapping:
-      Type: AWS::ApiGatewayV2::ApiMapping
-      Properties: 
-        ApiId: !Ref HttpApi
-        DomainName: !Ref CustomDomain
-        Stage: !Ref HttpApiStage
-
-    DnsRecord:
-      Type: AWS::Route53::RecordSet
-      Properties:
-        AliasTarget:
-          DNSName:
-            Fn::GetAtt:
-              - CustomDomain
-              - RegionalDomainName
-          HostedZoneId:
-            Fn::GetAtt:
-              - CustomDomain
-              - RegionalHostedZoneId
-          EvaluateTargetHealth: false
-        HostedZoneName: ${ssm:/deploy/${self:service}/HOSTED_ZONE}
-        Name: !Sub '${CustomDomain}.'
-        Type: A
