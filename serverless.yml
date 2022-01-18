@@ -69,7 +69,7 @@ custom:
     noPrependStageInUrl: true
   webpack:
     webpackConfig: ./webpack.config.js
-    packager: yarn
+    packager: npm
     includeModules: true
   prune:
     automatic: true
