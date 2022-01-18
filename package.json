@@ -4,8 +4,8 @@
   "description": "Full serverless, dynamoose, express boilerplate",
   "main": "src/index.js",
   "scripts": {
-    "deploy": "yarn && STAGE=prod serverless deploy --force",
-    "start": "yarn && docker-compose up -d && STAGE=local serverless offline start"
+    "deploy": "npm install && STAGE=prod serverless deploy --force",
+    "start": "npm install && docker-compose up -d && STAGE=local serverless offline start"
   },
   "author": "Grady T Rogers",
   "license": "MIT",
