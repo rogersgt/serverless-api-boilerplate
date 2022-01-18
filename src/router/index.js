@@ -14,6 +14,6 @@ router.use((req, res, next) => {
   next();
 });
 
-router.use('/api', apiRouter);
+router.use('/', apiRouter);
 
 export default router;

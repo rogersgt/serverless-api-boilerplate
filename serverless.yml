@@ -61,7 +61,7 @@ custom:
       <<: *defaultEnvVars
       AWS_DYNAMODB_TABLE:
         Ref: Table
-    local:
+    dev:
       <<: *defaultEnvVars
       AWS_DYNAMODB_ENDPOINT: http://localhost:4566
       AWS_DYNAMODB_TABLE: ${self:service}

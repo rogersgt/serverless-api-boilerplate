@@ -31,7 +31,18 @@ router.get('/:PK/:SK', (req, res) => {
 router.post('/:PK', (req, res) => {
   const { body: item, params } = req;
   const { PK } = params;
-  return dbService.create(PK, null, item)
+  return dbService.create(PK, undefined, item)
+    .then((saveResp) => res.status(200).send(saveResp))
+    .catch((e) => {
+      logger.error(e);
+      return res.status(500).send(e.message);
+    });
+});
+
+router.post('/:PK/:SK', (req, res) => {
+  const { body: item, params } = req;
+  const { PK, SK } = params;
+  return dbService.create(PK, SK, item)
     .then((saveResp) => res.status(200).send(saveResp))
     .catch((e) => {
       logger.error(e);
