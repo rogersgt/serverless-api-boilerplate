@@ -8,6 +8,7 @@ plugins:
   - serverless-webpack
   - serverless-offline
   - serverless-prune-plugin
+  - serverless-domain-manager
 
 package:
   individually: true
@@ -40,6 +41,16 @@ provider:
   environment: ${self:custom.environment.${self:provider.stage}}
 
 custom:
+  customDomain:
+    apiType: http
+    domainName: ${env:ROUTE53_RECORD_NAME, ''}
+    stage: ${self:provider.stage}
+    basePath: ''
+    certificateArn: ${env:ACM_CERTIFICATE_ARN, ''}
+    createRoute53Record: true
+    endpointType: 'regional'
+    securityPolicy: tls_1_2
+    autoDomain: true
   defaultEnvVars: &defaultEnvVars
     STAGE: ${self:provider.stage}
     SSM_APP_PATH: /app/${stage}/${self:service}
@@ -195,39 +206,3 @@ resources:
           ScaleOutCooldown: 60
           PredefinedMetricSpecification:
             PredefinedMetricType: DynamoDBReadCapacityUtilization
-
-    CustomDomain:
-      Type: AWS::ApiGatewayV2::DomainName
-      Properties: 
-        DomainName: ${env:ROUTE53_RECORD_NAME}
-        DomainNameConfigurations: 
-          - CertificateArn: ${env:ACM_CERTIFICATE_ARN}
-            SecurityPolicy: TLS_1_2
-            EndpointType: REGIONAL
-
-    ApiMapping:
-      Type: AWS::ApiGatewayV2::ApiMapping
-      Properties: 
-        ApiId:
-          Ref: HttpApi
-        DomainName:
-          Ref: CustomDomain
-        Stage:
-          Ref: HttpApiStage
-
-    DnsRecord:
-      Type: AWS::Route53::RecordSet
-      Properties:
-        AliasTarget:
-          DNSName:
-            Fn::GetAtt:
-              - CustomDomain
-              - RegionalDomainName
-          HostedZoneId:
-            Fn::GetAtt:
-              - CustomDomain
-              - RegionalHostedZoneId
-          EvaluateTargetHealth: false
-        HostedZoneId: ${env:ROUTE53_HOSTED_ZONE_ID}
-        Name: ${env:ROUTE53_RECORD_NAME}.
-        Type: A
