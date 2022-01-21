@@ -6,6 +6,9 @@ This is a serverless, express, dynamoose boiler plate implementing [single table
 * [Create an AWS Cognito User Pool](https://docs.aws.amazon.com/cognito/latest/developerguide/tutorial-create-user-pool.html)
 * [Register a Route53 Domain](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/domain-register.html)
 * [Create a Public Route53 Hosted Zone](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingHostedZone.html)
+* [Install Docker for local development](https://docs.docker.com/get-docker/)
+* [Create AWS Access Keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey)
+* [Add AWS Access Keys to local Credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)
 
 ## Stages
 * `prod`: deployed aws environment
