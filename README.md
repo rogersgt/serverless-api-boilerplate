@@ -1,6 +1,12 @@
 # serverless-api-boilerplate
 This is a serverless, express, dynamoose boiler plate implementing [single table design](https://aws.amazon.com/blogs/compute/creating-a-single-table-design-with-amazon-dynamodb/).
 
+## Prerequisites
+* [Create an AWS Account](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/)
+* [Create an AWS Cognito User Pool](https://docs.aws.amazon.com/cognito/latest/developerguide/tutorial-create-user-pool.html)
+* [Register a Route53 Domain](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/domain-register.html)
+* [Create a Public Route53 Hosted Zone](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingHostedZone.html)
+
 ## Stages
 * `prod`: deployed aws environment
 * `dev`: local development
@@ -40,7 +46,6 @@ export JWT_TOKEN=$(curl -X POST https://cognito-idp.$AWS_REGION.amazonaws.com/ \
 # you can now make an authenticated request against your prod api:
 curl -H "Authorization: Bearer $JWT_TOKEN" <your-prod-api-url>
 ```
-
 
 ## App Secrets
 The IAM policy defined in `serverless.yml` provides access to retrieve ssm parameters under a prefix pattern like `/app/$STAGE/$APP_NAME`. `APP_NAME` is set in the `.env` file.
