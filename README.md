@@ -8,6 +8,19 @@ This is a serverless, express, dynamoose boiler plate implementing [single table
 ## Env Vars
 Copy the `sample.env` to a file called `.env` and fill in the missing values.
 
+## Running locally
+```bash
+npm install
+docker compose up -d # Or use docker-compose for Linux
+npm start
+```
+
+## Deploying
+```bash
+npm install
+npm run deploy # deploys to an aws environment called "prod"
+```
+
 ## App Secrets
 The IAM policy defined in `serverless.yml` provides access to retrieve ssm parameters under a prefix pattern like `/app/$STAGE/$APP_NAME`. `APP_NAME` is set in the `.env` file.
 ```JavaScript
