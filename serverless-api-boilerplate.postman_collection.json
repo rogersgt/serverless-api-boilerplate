@@ -1,0 +1,53 @@
+{
+	"info": {
+		"_postman_id": "52810f16-06a3-4159-a4bb-8da7de384b97",
+		"name": "serverless-api-boilerplate",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Documents",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_base_url}}/somedoc",
+					"host": [
+						"{{api_base_url}}"
+					],
+					"path": [
+						"somedoc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create a Document",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"A nice title for a document\",\n    \"anyField\": \"Any value really\"\n}"
+				},
+				"url": {
+					"raw": "{{api_base_url}}/somedoc",
+					"host": [
+						"{{api_base_url}}"
+					],
+					"path": [
+						"somedoc"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
