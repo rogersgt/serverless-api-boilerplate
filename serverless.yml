@@ -38,6 +38,17 @@ provider:
           Resource:
             - arn:aws:ssm:${self:provider.region}:${aws:accountId}:parameter${self:provider.environment.SSM_APP_PATH}
   logRetentionInDays: 30
+  logs:
+    httpApi: true # Enable access logs
+  httpApi:
+    cors: true
+    authorizers:
+      cognitoAuth:
+        type: jwt
+        identitySource: $request.header.Authorization
+        issuerUrl: https://cognito-idp.${self:provider.region}.amazonaws.com/${env:COGNITO_USER_POOL_ID}
+        audience:
+          - ${env:COGNITO_CLIENT_ID}
   environment: ${self:custom.environment.${self:provider.stage}}
 
 custom:
@@ -82,8 +93,14 @@ functions:
   api:
     handler: src/index.api
     events:
-      - httpApi: '*'
-
+      - httpApi:
+          method: '*'
+          path: /{any}
+          authorizer:
+            name: cognitoAuth
+            # scopes:
+            #   - user.id
+            #   - user.email
 resources:
   Resources:
     Table:
