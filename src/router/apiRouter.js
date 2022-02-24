@@ -2,18 +2,18 @@ import { Router } from 'express';
 import * as dbService from '../services/dbService';
 import logger from '../logger';
 
-const router = Router();
+const router = Router(); // eslint-disable-line new-cap
 
 router.get('/:PK', (req, res) => {
   const { params } = req;
   const { PK } = params;
 
   return dbService.query(PK)
-  .then((results) => res.status(200).send(results))
-  .catch((e) => {
-    logger.error(e);
-    return res.status(500).send(e.message);
-  });
+    .then((results) => res.status(200).send(results))
+    .catch((e) => {
+      logger.error(e);
+      return res.status(500).send(e.message);
+    });
 });
 
 router.get('/:PK/:SK', (req, res) => {
@@ -21,11 +21,11 @@ router.get('/:PK/:SK', (req, res) => {
   const { PK, SK } = params;
 
   return dbService.query(PK, SK, query)
-  .then((results) => res.status(200).send(results))
-  .catch((e) => {
-    logger.error(e);
-    return res.status(500).send(e.message);
-  });
+    .then((results) => res.status(200).send(results))
+    .catch((e) => {
+      logger.error(e);
+      return res.status(500).send(e.message);
+    });
 });
 
 router.post('/:PK', (req, res) => {

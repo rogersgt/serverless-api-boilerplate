@@ -2,7 +2,7 @@ import { Router } from 'express';
 import logger from '../logger';
 import apiRouter from './apiRouter';
 
-const router = Router();
+const router = Router(); // eslint-disable-line new-cap
 
 router.use((req, res, next) => {
   const { url, body, method } = req;
